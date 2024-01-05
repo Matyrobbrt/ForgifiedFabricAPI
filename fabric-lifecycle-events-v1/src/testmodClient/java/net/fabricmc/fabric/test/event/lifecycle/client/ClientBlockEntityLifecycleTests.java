@@ -25,19 +25,17 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.world.chunk.WorldChunk;
 
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.impl.event.lifecycle.LoadedChunksCache;
 import net.fabricmc.fabric.test.event.lifecycle.ServerLifecycleTests;
 
-public final class ClientBlockEntityLifecycleTests implements ClientModInitializer {
+public final class ClientBlockEntityLifecycleTests {
 	private static final boolean PRINT_CLIENT_BLOCKENTITY_MESSAGES = System.getProperty("fabric-lifecycle-events-testmod.printClientBlockEntityMessages") != null;
 	private final List<BlockEntity> clientBlockEntities = new ArrayList<>();
 	private int clientTicks;
 
-	@Override
 	public void onInitializeClient() {
 		final Logger logger = ServerLifecycleTests.LOGGER;
 

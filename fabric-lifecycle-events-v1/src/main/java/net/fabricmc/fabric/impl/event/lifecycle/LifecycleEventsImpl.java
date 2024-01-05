@@ -16,19 +16,23 @@
 
 package net.fabricmc.fabric.impl.event.lifecycle;
 
+import net.fabricmc.fabric.impl.client.event.lifecycle.ClientLifecycleEventsImpl;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.Mod;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.chunk.WorldChunk;
 
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 
-public final class LifecycleEventsImpl implements ModInitializer {
-	@Override
-	public void onInitialize() {
+@Mod("fabric_lifecycle_events_v1")
+public final class LifecycleEventsImpl {
+	public LifecycleEventsImpl(Dist dist) {
 		// Part of impl for block entity events
 		ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
 			((LoadedChunksCache) world).fabric_markLoaded(chunk);
@@ -58,5 +62,9 @@ public final class LifecycleEventsImpl implements ModInitializer {
 				ServerEntityEvents.ENTITY_UNLOAD.invoker().onUnload(entity, world);
 			}
 		});
+
+		if (dist.isClient()) {
+			ClientLifecycleEventsImpl.onInitializeClient();
+		}
 	}
 }

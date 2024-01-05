@@ -67,17 +67,11 @@ def getBranch() {
 }
 
 def moduleDependencies(project, List<String> depNames) {
-	def deps = depNames.iterator().collect { project.dependencies.project(path: ":$it", configuration: 'namedElements') }
+	def deps = depNames.iterator().collect { project.dependencies.project(path: ":$it") }
 	def clientOutputs = /*depNames.iterator().collect { findProject(":$it").sourceSets.client.output }*/ []
 
-	project.dependencies {
-		deps.each {
-			implementation it
-		}
-
-		clientOutputs.each {
-			clientImplementation it
-		}
+	deps.each {
+		project.dependencies.implementation it
 	}
 
 	// As we manually handle the maven artifacts, we need to also manually specify the deps.

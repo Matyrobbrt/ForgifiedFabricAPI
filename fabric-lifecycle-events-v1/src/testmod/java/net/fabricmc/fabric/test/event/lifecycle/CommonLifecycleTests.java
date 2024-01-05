@@ -16,14 +16,34 @@
 
 package net.fabricmc.fabric.test.event.lifecycle;
 
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.test.event.lifecycle.client.ClientBlockEntityLifecycleTests;
+import net.fabricmc.fabric.test.event.lifecycle.client.ClientEntityLifecycleTests;
+import net.fabricmc.fabric.test.event.lifecycle.client.ClientLifecycleTests;
+import net.fabricmc.fabric.test.event.lifecycle.client.ClientTickTests;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.Mod;
+
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 
-public class CommonLifecycleTests implements ModInitializer {
-	@Override
-	public void onInitialize() {
+@Mod("fabric-lifecycle-events-v1-testmod")
+public class CommonLifecycleTests  {
+	public CommonLifecycleTests(Dist dist) {
 		CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
 			ServerLifecycleTests.LOGGER.info("Tags (re)loaded on {} {}", client ? "client" : "server", Thread.currentThread());
 		});
+
+		new ServerBlockEntityLifecycleTests().onInitialize();
+		new ServerEntityLifecycleTests().onInitialize();
+		new ServerLifecycleTests().onInitialize();
+		new ServerResourceReloadTests().onInitialize();
+		new ServerTickTests().onInitialize();
+
+		if (dist.isClient()) {
+			new ClientTickTests().onInitializeClient();
+			new ClientBlockEntityLifecycleTests().onInitializeClient();
+			new ClientLifecycleTests().onInitializeClient();
+			new ClientEntityLifecycleTests().onInitializeClient();
+		}
 	}
 }
