@@ -16,11 +16,19 @@
 
 package net.fabricmc.fabric.api.event;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import net.jodah.typetools.TypeResolver;
 
 import net.minecraft.util.Identifier;
 
 import net.fabricmc.fabric.impl.base.event.EventFactoryImpl;
+
+import net.neoforged.bus.EventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Helper for creating {@link Event} classes.
@@ -42,6 +50,26 @@ public final class EventFactory {
 	 */
 	public static <T> Event<T> createArrayBacked(Class<? super T> type, Function<T[], T> invokerFactory) {
 		return EventFactoryImpl.createArrayBacked(type, invokerFactory);
+	}
+
+	/**
+	 * Create an "array-backed" Event instance that listens to Forge events.
+	 *
+	 * <p>If your factory simply delegates to the listeners without adding custom behavior,
+	 * consider using {@linkplain #createArrayBacked(Class, Object, Function) the other overload}
+	 * if performance of this event is critical.
+	 *
+	 * @param type           The listener class type.
+	 * @param invokerFactory The invoker factory, combining multiple listeners into one instance.
+	 * @param <T>            The listener type.
+	 * @return The Event instance.
+	 */
+	@ApiStatus.Internal
+	public static <T, EV extends net.neoforged.bus.api.Event> Event<T> createArrayBackedForge(Class<? super T> type, Function<T[], T> invokerFactory, BiConsumer<EV, T> listener) {
+		final var event = EventFactoryImpl.createArrayBacked(type, invokerFactory);
+		final var eventClass = (Class<EV>) TypeResolver.resolveRawArguments(Consumer.class, listener.getClass())[0];
+		NeoForge.EVENT_BUS.addListener(eventClass, ev -> listener.accept(ev, event.invoker));
+		return event;
 	}
 
 	/**

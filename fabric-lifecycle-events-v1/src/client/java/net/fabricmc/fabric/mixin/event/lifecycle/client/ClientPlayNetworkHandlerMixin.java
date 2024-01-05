@@ -96,17 +96,17 @@ abstract class ClientPlayNetworkHandlerMixin {
 		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
-	@Inject(
-			method = "onSynchronizeTags",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/network/ClientCommonNetworkHandler;onSynchronizeTags(Lnet/minecraft/network/packet/s2c/common/SynchronizeTagsS2CPacket;)V",
-					shift = At.Shift.AFTER, by = 1
-			)
-	)
-	private void hookOnSynchronizeTags(SynchronizeTagsS2CPacket packet, CallbackInfo ci) {
-		ClientPlayNetworkHandler self = (ClientPlayNetworkHandler) (Object) this;
-		CommonLifecycleEvents.TAGS_LOADED.invoker().onTagsLoaded(self.getRegistryManager(), true);
-	}
+//	@SuppressWarnings("ConstantConditions")
+//	@Inject(
+//			method = "onSynchronizeTags",
+//			at = @At(
+//					value = "INVOKE",
+//					target = "Lnet/minecraft/client/network/ClientCommonNetworkHandler;onSynchronizeTags(Lnet/minecraft/network/packet/s2c/common/SynchronizeTagsS2CPacket;)V",
+//					shift = At.Shift.AFTER, by = 1
+//			)
+//	)
+//	private void hookOnSynchronizeTags(SynchronizeTagsS2CPacket packet, CallbackInfo ci) {
+//		ClientPlayNetworkHandler self = (ClientPlayNetworkHandler) (Object) this;
+//		CommonLifecycleEvents.TAGS_LOADED.invoker().onTagsLoaded(self.getRegistryManager(), true);
+//	}
 }

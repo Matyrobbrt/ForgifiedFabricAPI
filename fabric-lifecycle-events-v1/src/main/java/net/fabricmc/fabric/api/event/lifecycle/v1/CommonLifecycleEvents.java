@@ -21,6 +21,8 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
+
 public class CommonLifecycleEvents {
 	private CommonLifecycleEvents() {
 	}
@@ -28,11 +30,11 @@ public class CommonLifecycleEvents {
 	/**
 	 * Called when tags are loaded or updated.
 	 */
-	public static final Event<TagsLoaded> TAGS_LOADED = EventFactory.createArrayBacked(TagsLoaded.class, callbacks -> (registries, client) -> {
+	public static final Event<TagsLoaded> TAGS_LOADED = EventFactory.createArrayBackedForge(TagsLoaded.class, callbacks -> (registries, client) -> {
 		for (TagsLoaded callback : callbacks) {
 			callback.onTagsLoaded(registries, client);
 		}
-	});
+	}, (TagsUpdatedEvent event, TagsLoaded tagsLoaded) -> tagsLoaded.onTagsLoaded(event.getRegistryAccess(), event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED));
 
 	public interface TagsLoaded {
 		/**
