@@ -9,3 +9,7 @@ testDependencies(project, [
 	':fabric-api-base',
 	':fabric-resource-loader-v0'
 ])
+
+dependencies {
+	implementation "dev.su5ed.sinytra:fabric-loader:${rootProject.forge_fabric_loader_version}"
+}

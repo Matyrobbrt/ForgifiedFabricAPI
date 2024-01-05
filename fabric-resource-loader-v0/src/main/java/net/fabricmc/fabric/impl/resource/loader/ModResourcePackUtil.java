@@ -17,12 +17,8 @@
 package net.fabricmc.fabric.impl.resource.loader;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
@@ -31,12 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.resource.DataConfiguration;
-import net.minecraft.resource.DataPackSettings;
-import net.minecraft.resource.ResourcePack;
-import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.text.Text;
 
 import net.fabricmc.fabric.api.resource.ModResourcePack;
@@ -80,15 +71,13 @@ public final class ModResourcePackUtil {
 	}
 
 	public static InputStream openDefault(ModMetadata info, ResourceType type, String filename) {
-		switch (filename) {
-		case "pack.mcmeta":
-			String description = Objects.requireNonNullElse(info.getName(), "");
-			String metadata = serializeMetadata(SharedConstants.getGameVersion().getResourceVersion(type), description);
-			return IOUtils.toInputStream(metadata, Charsets.UTF_8);
-		default:
-			return null;
-		}
-	}
+        if (filename.equals("pack.mcmeta")) {
+            String description = Objects.requireNonNullElse(info.getName(), "");
+            String metadata = serializeMetadata(SharedConstants.getGameVersion().getResourceVersion(type), description);
+            return IOUtils.toInputStream(metadata, Charsets.UTF_8);
+        }
+        return null;
+    }
 
 	public static String serializeMetadata(int packVersion, String description) {
 		JsonObject pack = new JsonObject();
@@ -105,65 +94,5 @@ public final class ModResourcePackUtil {
 		} else {
 			return Text.translatable("pack.name.fabricMod", info.getId());
 		}
-	}
-
-	/**
-	 * Creates the default data pack settings that replaces
-	 * {@code DataPackSettings.SAFE_MODE} used in vanilla.
-	 * @return the default data pack settings
-	 */
-	public static DataConfiguration createDefaultDataConfiguration() {
-		ModResourcePackCreator modResourcePackCreator = new ModResourcePackCreator(ResourceType.SERVER_DATA);
-		List<ResourcePackProfile> moddedResourcePacks = new ArrayList<>();
-		modResourcePackCreator.register(moddedResourcePacks::add);
-
-		List<String> enabled = new ArrayList<>(DataPackSettings.SAFE_MODE.getEnabled());
-		List<String> disabled = new ArrayList<>(DataPackSettings.SAFE_MODE.getDisabled());
-
-		// This ensures that any built-in registered data packs by mods which needs to be enabled by default are
-		// as the data pack screen automatically put any data pack as disabled except the Default data pack.
-		for (ResourcePackProfile profile : moddedResourcePacks) {
-			try (ResourcePack pack = profile.createResourcePack()) {
-				if (pack instanceof FabricModResourcePack || (pack instanceof ModNioResourcePack && ((ModNioResourcePack) pack).getActivationType().isEnabledByDefault())) {
-					enabled.add(profile.getName());
-				} else {
-					disabled.add(profile.getName());
-				}
-			}
-		}
-
-		return new DataConfiguration(
-				new DataPackSettings(enabled, disabled),
-				FeatureFlags.DEFAULT_ENABLED_FEATURES
-		);
-	}
-
-	/**
-	 * Vanilla enables all available datapacks automatically in TestServer#create, but it does so in alphabetical order,
-	 * which means the Vanilla pack has higher precedence than modded, breaking our tests.
-	 * To fix this, we move all modded pack profiles to the end of the list.
-	 */
-	public static DataPackSettings createTestServerSettings(List<String> enabled, List<String> disabled) {
-		// Collect modded profiles
-		Set<String> moddedProfiles = new HashSet<>();
-		ModResourcePackCreator modResourcePackCreator = new ModResourcePackCreator(ResourceType.SERVER_DATA);
-		modResourcePackCreator.register(profile -> moddedProfiles.add(profile.getName()));
-
-		// Remove them from the enabled list
-		List<String> moveToTheEnd = new ArrayList<>();
-
-		for (Iterator<String> it = enabled.iterator(); it.hasNext();) {
-			String profile = it.next();
-
-			if (moddedProfiles.contains(profile)) {
-				moveToTheEnd.add(profile);
-				it.remove();
-			}
-		}
-
-		// Add back at the end
-		enabled.addAll(moveToTheEnd);
-
-		return new DataPackSettings(enabled, disabled);
 	}
 }

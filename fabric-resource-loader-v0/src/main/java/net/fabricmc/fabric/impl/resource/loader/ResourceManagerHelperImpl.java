@@ -29,10 +29,14 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
+
+import net.minecraft.resource.ResourcePack;
+
+import net.minecraft.resource.VanillaResourcePackProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ResourceReloader;
 import net.minecraft.resource.ResourceType;
@@ -112,18 +116,15 @@ public class ResourceManagerHelperImpl implements ResourceManagerHelper {
 			// Add the built-in pack only if namespaces for the specified resource type are present.
 			if (!pack.getNamespaces(resourceType).isEmpty()) {
 				// Make the resource pack profile for built-in pack, should never be always enabled.
-				ResourcePackProfile profile = ResourcePackProfile.create(entry.getRight().getName(), entry.getLeft(), pack.getActivationType() == ResourcePackActivationType.ALWAYS_ENABLED, new ResourcePackProfile.PackFactory() {
-					@Override
-					public ResourcePack open(String name) {
-						return entry.getRight();
-					}
-
-					@Override
-					public ResourcePack openWithOverlays(String string, ResourcePackProfile.Metadata metadata) {
-						// Don't support overlays in builtin res packs.
-						return entry.getRight();
-					}
-				}, resourceType, ResourcePackProfile.InsertionPosition.TOP, new BuiltinModResourcePackSource(pack.getFabricModMetadata().getName()));
+				ResourcePackProfile profile = ResourcePackProfile.create(
+						entry.getRight().getName(),
+						entry.getLeft(),
+						pack.getActivationType() == ResourcePackActivationType.ALWAYS_ENABLED,
+						VanillaResourcePackProvider.createPackFactory(entry.getRight()),
+						resourceType,
+						ResourcePackProfile.InsertionPosition.TOP,
+						new BuiltinModResourcePackSource(pack.getFabricModMetadata().getName())
+				);
 				consumer.accept(profile);
 			}
 		}

@@ -8,15 +8,9 @@
     "MinecraftServerMixin",
     "NamespaceResourceManagerMixin",
     "ReloadableResourceManagerImplMixin",
-    "ResourceMixin",
-    "ResourcePackManagerMixin",
-    "ResourcePackProfileMixin",
-    "ServerPropertiesHandlerMixin",
     "SimpleResourceReloadMixin",
-    "TestServerMixin"
   ],
   "server": [
-    "server.LanguageMixin"
   ],
   "injectors": {
     "defaultRequire": 1
