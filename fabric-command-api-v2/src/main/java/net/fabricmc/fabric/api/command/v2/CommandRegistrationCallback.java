@@ -25,6 +25,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+
 /**
  * Callback for when a server registers all commands.
  *
@@ -38,11 +40,11 @@ import net.fabricmc.fabric.api.event.EventFactory;
  * }</pre>
  */
 public interface CommandRegistrationCallback {
-	Event<CommandRegistrationCallback> EVENT = EventFactory.createArrayBacked(CommandRegistrationCallback.class, (callbacks) -> (dispatcher, registryAccess, environment) -> {
+	Event<CommandRegistrationCallback> EVENT = EventFactory.createArrayBackedForge(CommandRegistrationCallback.class, (callbacks) -> (dispatcher, registryAccess, environment) -> {
 		for (CommandRegistrationCallback callback : callbacks) {
 			callback.register(dispatcher, registryAccess, environment);
 		}
-	});
+	}, (RegisterCommandsEvent event, CommandRegistrationCallback callback) -> callback.register(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection()));
 
 	/**
 	 * Called when the server is registering commands.
